@@ -12,7 +12,6 @@
 ##	- Iptables			    ##
 ##	- Check Root Kits		    ##
 ##	- Check Malicious Files		    ##
-## Stay tuned for more!	Email:admin@krux.us ##
 ##############################################
 
 package="Deutsch Armee Messer";
