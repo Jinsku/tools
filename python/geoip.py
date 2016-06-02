@@ -10,7 +10,7 @@ else:
 	version=2
 	import urllib2 as urllib
 
-API="8VEIOxLLP7qETm6h9dGCMXVS58tBRXEk"
+API=""
 
 def main():
 	try: search=sys.argv[1]
