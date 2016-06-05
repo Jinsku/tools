@@ -36,17 +36,17 @@ def main():
 		except Exception as err: print("Error: "+str(err));exit(1)
 	"""
 	try: print(response["ip_str"]+" -"),
-	except Exception as err: print("Error: "+str(err))
+	except Exception as err: print("IP Error: "+str(err))
 	try: print(response["country_code"]+" -"),
-	except Exception as err: print("Error: "+str(err))
+	except Exception as err: print("Country Error: "+str(err))
 	try: print(response["region_code"])
-	except Exception as err: print("Error: "+str(err))
+	except Exception as err: print("Region Error: "+str(err))
 	try: print("Hostname: "+response["hostnames"][0])
-	except Exception as err: print("Error: "+str(err))
+	except Exception as err: print("Hostname Error: "+str(err))
 	try: print("Company: "+response["isp"])
-	except Exception as err: print("Error: "+str(err))
+	except Exception as err: print("Owner Error: "+str(err))
 	try: print("Ports: "+str(response["ports"])[1:-1])
-	except Exception as err: print("Error: "+str(err))
+	except Exception as err: print("Ports Error: "+str(err))
 
 if __name__=="__main__":
 	main()
