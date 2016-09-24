@@ -1,6 +1,7 @@
 source ~/houdini/config
 source ~/houdini/alakazam/core/functions.sh
 source ~/houdini/alakazam/custom/functions.sh
+export PATH=$PATH:~/houdini/alakazam/custom/Jinsku/
 
 ## Aliases ##
 
