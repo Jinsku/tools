@@ -4,4 +4,6 @@ A custom shell configuration/toolset for internal checks, includes all software 
 
 Add the following to your .bashrc or .bash_profile
 
-```source ~/houdini/.hsh_local
+```bash
+source ~/houdini/.hsh_local
+```

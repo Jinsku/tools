@@ -28,7 +28,7 @@ ds(){
         fi
 }
 
-# name servers only
+#name servers only
 dsn() {
         if [ $# -eq 2 ]
          then
