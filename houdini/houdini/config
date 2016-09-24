@@ -1,0 +1,3 @@
+source ~/houdini/alakazam/core/colors.sh
+motdLeft=".motd"
+motdRight=".motd-logo"
