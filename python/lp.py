@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: UTF-8 -*-
 # A tool for parsing Combined Log Files.
 import sys,re,os,socket
 
@@ -72,7 +73,7 @@ def main():
 	print("\n["+BLU+"+"+CLR+"] Top Referrers")
 	refs=retList(refs)
 	for ref in refs: print("\t{} {}".format(ref[0],ref[1]))
-	print()
+	print("")
 
 if __name__=="__main__":
 	main()
