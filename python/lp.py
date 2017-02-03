@@ -37,7 +37,7 @@ def countThing(things):
 	return sorted(ehits,reverse=True)[:10]
 
 def retList(thing):
-	thing=sorted(thing,reverse=True)[:10]
+	thing=sorted(thing,reverse=True)
 	return countThing(thing)
 
 def main():
