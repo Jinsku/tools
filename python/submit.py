@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# https://docs.python.org/3/library/smtplib.html
-import sys,os,hashlib,time,socket,smtplib,getpass,logging
+import sys,os,hashlib,time,socket,smtplib,getpass,logging,binascii,pwd
 if sys.version_info[0] <3:
 	print("Requires Python3")
 	exit(1)
@@ -28,27 +27,41 @@ def log(malware,message,submitted):
 	else:
 		logging.warning("Invalid log entry")
 
+def getHost():
+	return socket.getfqdn(socket.gethostname())
+
 def getSender():
 	user=getpass.getuser()
-	hostname=socket.getfqdn(socket.gethostname())
+	hostname=getHost()
 	return user+"@"+hostname
 
+def getUser(thing):
+	uid=os.stat(thing).st_uid
+	return pwd.getpwuid(uid).pw_name
+
+def getSubmitter():
+	return os.getlogin()
+
 def sendMe(malware):
-	hostname=socket.getfqdn(socket.gethostname())
-	ltime=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
+	hostname=getHost()
 	if config["sender"] == None or config["sender"] == '':
 		config["sender"]=getSender()
-	subject="File report for {} - {}".format(hostname,ltime)
+	subject="File report for {} - {}".format(hostname,getTime())
 	header="From: {}\r\nTo: ".format(config["sender"])
 	for user in config["to"]:
 		header+="{},".format(user)
 	header+="\r\nSubject: {}\r\n\r\n".format(subject)
-	contents=header+"Greetings!\n\nOne or more files have been submitted for your review on {} at the paths included below\n\n".format(hostname)
+	contents=header+"Greetings!\n\nOne or more files have been submitted for your review by {} on {} at {}.\n\n".format(getSubmitter(),hostname,getTime())
 	for mal in malware:
-		contents+="{:>15} {:>4}\n".format("======",mal["path"])
-		contents+="{:>15}: {:>4}\n".format("Time",mal["mtime"])
-		contents+="{:>15}: {:>4}\n".format("SHA256 Hash",mal["sha256"])
-		contents+="{:>15}: {:>4}\n\n".format("Sample",str(mal["sample"]))
+		contents+="{:>16} {:>4}\n".format("======",mal["path"])
+		contents+="{:>15}: {}\n".format("File",os.path.basename(mal["path"]))
+		contents+="{:>15}: {}\n".format("Hostname",mal["host"])
+		contents+="{:>15}: {}\n".format("Owner",mal["user"])
+		contents+="{:>15}: {}\n".format("MTime",mal["mtime"])
+		contents+="{:>15}: {}\n".format("MD5 Hash",mal["md5"])
+		contents+="{:>15}: {}\n".format("SHA256 Hash",mal["sha256"])
+		contents+="{:>15}: {}\n".format("Hex Signature",mal["sig"])
+		contents+="{:>15}: {}\n\n".format("Sample",str(mal["sample"]))
 	try:
 		with smtplib.SMTP('localhost') as smtp:
 			smtp.sendmail(config["sender"],config["to"],contents)	
@@ -58,14 +71,24 @@ def sendMe(malware):
 		log(mal["path"],"failed to submit.",False)
 		return False
 
-def getHash(thing):
-	with open(thing,"r") as fd:
-		sha=hashlib.sha256(fd.read().encode("utf-8")).hexdigest()
-	return sha
+def getSig(md5):
+	return binascii.hexlify(bytes(md5,"utf-8")).decode("utf-8")
 
-def getTime(thing):
-	get=os.path.getmtime(thing)
-	return time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(get))
+def getHash(thing,sig):
+	with open(thing,"r") as fd:
+		if sig == "md5":
+			response=hashlib.md5(fd.read().encode("utf-8")).hexdigest()
+		elif sig == "sha256":
+			response=hashlib.sha256(fd.read().encode("utf-8")).hexdigest()
+	return str(response)
+
+def getTime(thing=None):
+	if thing:
+		get=os.path.getmtime(thing)
+		stime=time.strftime("%c",time.localtime(get))
+	else:
+		stime=time.strftime("%c",time.localtime())
+	return stime
 
 def main():
 	files=[]
@@ -81,8 +104,13 @@ def main():
 			info={}
 			if os.path.exists(thing):
 				info["path"]=thing
+				info["user"]=getUser(thing)
+				info["host"]=getHost()
+				info["stime"]=getTime()
 				info["mtime"]=getTime(thing)
-				info["sha256"]=getHash(thing)
+				info["md5"]=getHash(thing,"md5")
+				info["sha256"]=getHash(thing,"sha256")
+				info["sig"]=getSig(info["md5"])
 				with open(thing,"rb") as fd:
 					info["sample"]=fd.read()[:100]
 				malware.append(info)
